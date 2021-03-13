@@ -1,20 +1,16 @@
 package com.target.product.entity;
 
 import java.io.Serializable;
-import org.springframework.data.cassandra.core.mapping.Column;
-import org.springframework.data.cassandra.core.mapping.PrimaryKey;
-import org.springframework.data.cassandra.core.mapping.Table;
 
-@Table("product_data")
+
 public class ProductEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@PrimaryKey
 	private Integer productId;
-	@Column("name")
+
 	private String name;
-	@Column("currentprice")
+
 	private CurrentPrice currentprice;
 
 	public ProductEntity() {
@@ -53,5 +49,4 @@ public class ProductEntity implements Serializable {
 		this.currentprice = currentprice;
 	}
 
-	
 }

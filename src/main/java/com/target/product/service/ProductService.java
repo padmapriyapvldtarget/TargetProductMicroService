@@ -26,52 +26,56 @@ public class ProductService {
 	@Autowired
 	private ProductRepository productRepository;
 
-	public ProductEntity saveIntoProductTable(Product product, ResponseEntity<RedSky> redSky) {
+	public Product saveIntoProductTable(Product product) {
 
-		ProductEntity entity = new ProductEntity();
-		entity.setProductId(product.getProductId());
-		entity.setName(redSky.getBody().getName());
-		CurrentPrice price = new CurrentPrice();
-		price.setValue(product.getCurrentprice().getValue());
-		price.setCurrencyCode(product.getCurrentprice().getCurrencyCode());
-		entity.setCurrentprice(price);
-
-		return productRepository.save(entity);
+		return productRepository.save(product);
 
 	}
 
-	public ProductEntity fetchRecordFromProductTable(Integer id) throws NoContentException {
-		Optional<ProductEntity> entity = productRepository.findById(id);
-		if (!entity.isPresent()) {
-			throw new NoContentException(HttpStatus.NO_CONTENT);
-		}
-		return entity.get();
-
-	}
-
-	public ResponseEntity<RedSky> getRedSkyDetails(Product product) throws NoContentException {
+	public ResponseEntity<RedSky> getRedSkyDetails(Integer productId) throws NoContentException {
 
 		RestTemplate restTemplate = new RestTemplate();
-		String fooResourceUrl = redSkyUrl + product.getProductId();
+		String fooResourceUrl = redSkyUrl + productId;
 		ResponseEntity<RedSky> response = restTemplate.getForEntity(fooResourceUrl, RedSky.class);
 
 		return response;
 
 	}
 
-	public ProductEntity updateRecordIntoProductTable(ProductEntity productEntity) {
+	public Product updateRecordIntoProductTable(ProductEntity productEntity) {
 
-		ProductEntity productData = new ProductEntity();
-		productData.setProductId(productEntity.getProductId());
-		productData.setName(productEntity.getName());
+		Product productDetails = new Product();
+		productDetails.setProductId(productEntity.getProductId());
 		CurrentPrice currentPrice = new CurrentPrice();
 		currentPrice.setValue(productEntity.getCurrentprice().getValue());
 		currentPrice.setCurrencyCode(productEntity.getCurrentprice().getCurrencyCode());
-		productData.setCurrentprice(currentPrice);
+		productDetails.setCurrentprice(currentPrice);
 
-		ProductEntity entity = productRepository.save(productData);
+		Product entity = productRepository.save(productDetails);
 
 		return entity;
+
+	}
+
+	public ProductEntity fetchRecordFromProductTable(Integer productId, ResponseEntity<RedSky> redSky)
+			throws NoContentException {
+
+		ProductEntity productEntity = new ProductEntity();
+
+		Optional<Product> productDetails = productRepository.findById(productId);
+		if (productDetails.isPresent()) {
+
+			productEntity.setProductId(productDetails.get().getProductId());
+			productEntity.setName(redSky.getBody().getName());
+			CurrentPrice price = new CurrentPrice();
+			price.setValue(productDetails.get().getCurrentprice().getValue());
+			price.setCurrencyCode(productDetails.get().getCurrentprice().getCurrencyCode());
+			productEntity.setCurrentprice(price);
+			return productEntity;
+
+		} else {
+			throw new NoContentException(HttpStatus.NO_CONTENT);
+		}
 
 	}
 

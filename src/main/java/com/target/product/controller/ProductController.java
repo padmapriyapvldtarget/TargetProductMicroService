@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.target.product.entity.CurrentPrice;
 import com.target.product.entity.ProductEntity;
 import com.target.product.exception.NoContentException;
 import com.target.product.model.Product;
@@ -42,32 +43,24 @@ public class ProductController {
 	@PostMapping("/save")
 	public ResponseEntity<?> saveIntoProductTable(@RequestBody Product product) {
 
-		ResponseEntity<RedSky> redSky = null;
-		try {
-			redSky = productService.getRedSkyDetails(product);
-		} catch (NoContentException e) {
-			return new ResponseEntity<>("RedSky Serivce Exception", HttpStatus.NO_CONTENT);
-
-		}
-
-		if (redSky.getBody().getProductId() == product.getProductId()) {
-
-			return new ResponseEntity<>(productService.saveIntoProductTable(product, redSky), HttpStatus.OK);
-		} else {
-
-			return new ResponseEntity<>("No Product available", HttpStatus.NO_CONTENT);
-		}
+		
+			return new ResponseEntity<>(productService.saveIntoProductTable(product), HttpStatus.OK);
+		
 
 	}
 
 	@GetMapping(path = "{id}")
 	public ResponseEntity<?> fetchRecordFromProductTable(@PathVariable("id") Integer productId) {
-		ProductEntity productData = null;
+		ProductEntity productEntity = null;
+		Product productDetails = null;
+
+		ResponseEntity<RedSky> redSky = null;
 
 		try {
-			productData = productService.fetchRecordFromProductTable(productId);
+			redSky = productService.getRedSkyDetails(productId);
+			productEntity = productService.fetchRecordFromProductTable(productId, redSky);
 
-			return new ResponseEntity<>(productData, HttpStatus.OK);
+			return new ResponseEntity<>(productEntity, HttpStatus.OK);
 
 		} catch (NoContentException e) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -76,9 +69,9 @@ public class ProductController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<ProductEntity> updateProduct(@PathVariable("id") Integer productId,
+	public ResponseEntity<Product> updateProduct(@PathVariable("id") Integer productId,
 			@RequestBody ProductEntity productEntity) {
-		Optional<ProductEntity> productData = productRepository.findById(productId);
+		Optional<Product> productData = productRepository.findById(productId);
 
 		if (productData.isPresent()) {
 
@@ -101,9 +94,9 @@ public class ProductController {
 	}
 
 	@GetMapping("/getAllProducts")
-	public ResponseEntity<List<ProductEntity>> getAllProducts() {
+	public ResponseEntity<List<Product>> getAllProducts() {
 		try {
-			List<ProductEntity> products = new ArrayList<ProductEntity>();
+			List<Product> products = new ArrayList<Product>();
 
 			productRepository.findAll().forEach(products::add);
 

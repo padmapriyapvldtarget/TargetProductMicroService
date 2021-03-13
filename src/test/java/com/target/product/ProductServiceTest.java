@@ -73,6 +73,34 @@ public class ProductServiceTest {
 	@DisplayName("saveProduct")
 	public void saveProduct() throws Exception {
 
+		Product productResult = null;
+
+		String mockProductJson = JsonConstants.mockProductJson;
+
+		Gson gson = new Gson();
+
+		Type productListType = new TypeToken<ArrayList<Product>>() {
+		}.getType();
+
+		ArrayList<Product> productList = gson.fromJson(mockProductJson, productListType);
+
+		for (int i = 0; i < productList.size(); i++) {
+
+			Product product = productList.get(i);
+
+			mockProductService = Mockito.mock(ProductService.class);
+
+			productResult = productService.saveIntoProductTable(product);
+
+			assertEquals(productResult.getProductId(), product.getProductId());
+		}
+
+	}
+
+	@Test
+	@DisplayName("getProductById")
+	public void getProductById() throws Exception {
+
 		ProductEntity productResult = null;
 
 		String mockRedSkyJson = JsonConstants.mockRedSkyJson;
@@ -92,38 +120,18 @@ public class ProductServiceTest {
 
 		for (int i = 0; i < productList.size() && i < redSkyList.size(); i++) {
 
-			ObjectMapper mapper = new ObjectMapper();
 			Product product = productList.get(i);
 			ResponseEntity<RedSky> redSky = new ResponseEntity<>(redSkyList.get(i), HttpStatus.OK);
 
 			mockProductService = Mockito.mock(ProductService.class);
 
-			productResult = productService.saveIntoProductTable(product, redSky);
+			productResult = productService.fetchRecordFromProductTable(product.getProductId(), redSky);
 
 			assertEquals(productResult.getProductId(), product.getProductId());
+
+			
 		}
 
-	}
-
-	@Test
-	@DisplayName("getProductById")
-	public void getProductById() throws Exception {
-
-		String mockProductJson = JsonConstants.mockProductJson;
-		Gson gson = new Gson();
-		Type productListType = new TypeToken<ArrayList<Product>>() {
-		}.getType();
-
-		ArrayList<Product> productList = gson.fromJson(mockProductJson, productListType);
-
-		mockProductService = Mockito.mock(ProductService.class);
-		for (int i = 0; i < productList.size(); i++) {
-
-			productService.fetchRecordFromProductTable(productList.get(i).getProductId());
-			mockMvc.perform(get("/product/{id}", productList.get(i).getProductId())).andExpect(status().isOk())
-					.andExpect(MockMvcResultMatchers.jsonPath("$.productId").value(productList.get(i).getProductId()));
-
-		}
 	}
 
 	@Test
@@ -147,7 +155,7 @@ public class ProductServiceTest {
 	@Test
 	public void updateProductAPI() throws Exception {
 
-		String mockProductJson = JsonConstants.mockProductJson;
+		String mockProductJson = JsonConstants.mockProductEntityJson;
 
 		Gson gson = new Gson();
 
