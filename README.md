@@ -32,7 +32,6 @@ currencycode text);
 
 CREATE TABLE product1."product_data"
 (productid int,
-name text,
 currentprice current_price,
 PRIMARY KEY (productid));
 
